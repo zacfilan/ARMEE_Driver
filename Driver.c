@@ -73,7 +73,7 @@ VOID MyDeviceIoControl(
     NTSTATUS status = STATUS_SUCCESS;
     set_uci();
 
-/*
+
     switch (IoControlCode)
     {
     case IOCTL_set_uci:
@@ -93,7 +93,6 @@ VOID MyDeviceIoControl(
         status = STATUS_INVALID_DEVICE_REQUEST;
         break;
     }
-    */
 
     // Complete the request. 
     WdfRequestComplete(Request, status);
