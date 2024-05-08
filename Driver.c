@@ -9,6 +9,20 @@ EVT_WDF_DRIVER_DEVICE_ADD ARMEEEvtDeviceAdd;
 extern void set_uci(void);
 extern void clear_uci(void);
 
+// do on all CPUs at the same time
+ULONG_PTR BroadcastClearUci(ULONG_PTR Context) {
+    UNREFERENCED_PARAMETER(Context);
+    clear_uci();
+    return 0;
+}
+
+// do on all CPUs at the same time
+ULONG_PTR BroadcastSetUci(ULONG_PTR Context) {
+    UNREFERENCED_PARAMETER(Context);
+    set_uci();
+    return 0;
+}
+
 // Example IOCTL definition
 #define IOCTL_set_uci CTL_CODE(FILE_DEVICE_UNKNOWN, 0x800, METHOD_BUFFERED, FILE_ANY_ACCESS)
 #define IOCTL_clear_uci CTL_CODE(FILE_DEVICE_UNKNOWN, 0x400, METHOD_BUFFERED, FILE_ANY_ACCESS)
@@ -77,14 +91,12 @@ VOID MyDeviceIoControl(
     switch (IoControlCode)
     {
     case IOCTL_set_uci:
-        set_uci();
-
+        KeIpiGenericCall(BroadcastSetUci, 0);
         // Complete the request
         status = STATUS_SUCCESS;
         break;
     case IOCTL_clear_uci:
-        clear_uci();
-
+		KeIpiGenericCall(BroadcastClearUci, 0); 
         // Complete the request
         status = STATUS_SUCCESS;
         break;
